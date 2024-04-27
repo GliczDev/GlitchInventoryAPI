@@ -2,12 +2,8 @@ plugins {
     id("maven-publish")
 }
 
-repositories {
-    maven("https://repo.papermc.io/repository/maven-public/")
-}
-
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.5-R0.1-SNAPSHOT")
 }
 
 java {

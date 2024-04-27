@@ -2,7 +2,7 @@ package me.glicz.inventoryapi;
 
 import me.glicz.inventoryapi.config.GlitchInventoryAPIConfig;
 import me.glicz.inventoryapi.factory.GlitchInventoryFactory;
-import me.glicz.inventoryapi.nms.NMS;
+import me.glicz.inventoryapi.nms.NMSBridge;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
@@ -37,5 +37,5 @@ public abstract class GlitchInventoryAPI {
     abstract GlitchInventory<?> getGlitchInventory(@NotNull Player player);
 
     @ApiStatus.Internal
-    public abstract NMS getNms();
+    public abstract NMSBridge nmsBridge();
 }

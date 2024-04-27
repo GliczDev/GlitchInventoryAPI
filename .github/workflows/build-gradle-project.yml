@@ -15,16 +15,16 @@ jobs:
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
-      - name: Setup JDK 17 for x64
+      - name: Setup JDK 21 for x64
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 21
           distribution: corretto
           architecture: x64
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
       - name: Run shadowJar and publish with Gradle Wrapper
-        run: ./gradlew plugin:shadowJarReobf plugin:shadowJarMojMap core:publish api:publish -ProxymcUsername=${{ env.REPO_USER }} -ProxymcPassword=${{ env.REPO_PASS }}
+        run: ./gradlew plugin:shadowJar core:publish api:publish -ProxymcUsername=${{ env.REPO_USER }} -ProxymcPassword=${{ env.REPO_PASS }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

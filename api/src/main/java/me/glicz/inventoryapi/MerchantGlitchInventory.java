@@ -24,7 +24,8 @@ public interface MerchantGlitchInventory extends GlitchInventory<MerchantGlitchI
         return recipe(selectedRecipeIndex());
     }
 
-    @NotNull List<@NotNull MerchantRecipe> recipes();
+    @NotNull
+    List<@NotNull MerchantRecipe> recipes();
 
     MerchantGlitchInventory recipes(@Nullable List<@NotNull MerchantRecipe> recipes);
 

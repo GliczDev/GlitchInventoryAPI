@@ -25,7 +25,8 @@ public interface GuiItem {
         return new SimpleGuiItem(guiItem.itemStack(), guiItem.clickAction());
     }
 
-    @NotNull ItemStack itemStack();
+    @NotNull
+    ItemStack itemStack();
 
     void itemStack(@NotNull ItemStack itemStack);
 
@@ -35,7 +36,8 @@ public interface GuiItem {
         itemStack(itemStack);
     }
 
-    @Nullable <T extends GlitchInventory<T>> ClickAction<T> clickAction();
+    @Nullable
+    <T extends GlitchInventory<T>> ClickAction<T> clickAction();
 
     <T extends GlitchInventory<T>> void clickAction(ClickAction<T> clickAction);
 }

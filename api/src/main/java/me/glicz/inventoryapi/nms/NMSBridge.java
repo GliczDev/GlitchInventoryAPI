@@ -9,7 +9,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public interface NMS {
+public interface NMSBridge {
     void injectPlayer(Player player);
 
     void uninjectPlayer(Player player);

@@ -1,4 +1,4 @@
-package me.glicz.inventoryapi.nms.v1_20_R3;
+package me.glicz.inventoryapi.nms;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
@@ -10,43 +10,55 @@ import me.glicz.inventoryapi.GlitchInventoryAPI;
 import me.glicz.inventoryapi.MerchantGlitchInventory;
 import me.glicz.inventoryapi.click.ClickType;
 import me.glicz.inventoryapi.item.gui.GuiItem;
-import me.glicz.inventoryapi.nms.NMS;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftMerchantRecipe;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.MerchantRecipe;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-public class NMS_v1_20_R3 implements NMS {
-    protected ServerPlayer serverPlayer(Player player) {
-        return MinecraftServer.getServer().getPlayerList().getPlayer(player.getUniqueId());
+public class NMSBridgeImpl implements NMSBridge {
+    private final Map<InventoryType, MenuType<?>> menuTypeMap = new HashMap<>();
+
+    public NMSBridgeImpl() {
+        registerMenuType(InventoryType.PLAYER, MenuType.GENERIC_9x4);
+        registerMenuType(InventoryType.WORKBENCH, MenuType.CRAFTING);
+        registerMenuType(InventoryType.FURNACE, MenuType.FURNACE);
+        registerMenuType(InventoryType.DISPENSER, MenuType.GENERIC_3x3);
+        registerMenuType(InventoryType.DROPPER, MenuType.GENERIC_3x3);
+        registerMenuType(InventoryType.ENCHANTING, MenuType.ENCHANTMENT);
+        registerMenuType(InventoryType.BREWING, MenuType.BREWING_STAND);
+        registerMenuType(InventoryType.BEACON, MenuType.BEACON);
+        registerMenuType(InventoryType.ANVIL, MenuType.ANVIL);
+        registerMenuType(InventoryType.SMITHING, MenuType.SMITHING);
+        registerMenuType(InventoryType.HOPPER, MenuType.HOPPER);
+        registerMenuType(InventoryType.SHULKER_BOX, MenuType.SHULKER_BOX);
+        registerMenuType(InventoryType.BLAST_FURNACE, MenuType.BLAST_FURNACE);
+        registerMenuType(InventoryType.LECTERN, MenuType.LECTERN);
+        registerMenuType(InventoryType.SMOKER, MenuType.SMOKER);
+        registerMenuType(InventoryType.LOOM, MenuType.LOOM);
+        registerMenuType(InventoryType.CARTOGRAPHY, MenuType.CARTOGRAPHY_TABLE);
+        registerMenuType(InventoryType.GRINDSTONE, MenuType.GRINDSTONE);
+        registerMenuType(InventoryType.STONECUTTER, MenuType.STONECUTTER);
+        registerMenuType(InventoryType.MERCHANT, MenuType.MERCHANT);
     }
 
-    protected MerchantOffer merchantOffer(MerchantRecipe recipe) {
-        return new MerchantOffer(
-                !recipe.getIngredients().isEmpty()
-                        ? ItemStack.fromBukkitCopy(recipe.getIngredients().get(0))
-                        : ItemStack.EMPTY,
-                recipe.getIngredients().size() > 1
-                        ? ItemStack.fromBukkitCopy(recipe.getIngredients().get(1))
-                        : ItemStack.EMPTY,
-                ItemStack.fromBukkitCopy(recipe.getResult()),
-                recipe.getUses(),
-                recipe.getMaxUses(),
-                recipe.getVillagerExperience(),
-                recipe.getPriceMultiplier(),
-                0,
-                recipe.shouldIgnoreDiscounts()
-        );
+    public void registerMenuType(InventoryType inventoryType, MenuType<?> menuType) {
+        menuTypeMap.put(inventoryType, menuType);
+    }
+
+    private ServerPlayer serverPlayer(Player player) {
+        return ((CraftPlayer) player).getHandle();
     }
 
     @Override
@@ -58,6 +70,7 @@ public class NMS_v1_20_R3 implements NMS {
         );
     }
 
+    @SuppressWarnings("resource")
     @Override
     public void uninjectPlayer(Player player) {
         Channel channel = serverPlayer(player).connection.connection.channel;
@@ -103,6 +116,17 @@ public class NMS_v1_20_R3 implements NMS {
         return serverPlayer(player).nextContainerCounter();
     }
 
+    @Override
+    public void openInventory(GlitchInventory<?> inventory) {
+        serverPlayer(inventory.viewer()).connection.send(new ClientboundOpenScreenPacket(
+                inventory.containerId(),
+                inventory.inventoryType() == InventoryType.CHEST
+                        ? menuType(inventory.size() / 9)
+                        : menuType(inventory.inventoryType()),
+                PaperAdventure.asVanilla(inventory.title().component())
+        ));
+    }
+
     protected MenuType<?> menuType(int rows) {
         return switch (rows) {
             case 1 -> MenuType.GENERIC_9x1;
@@ -115,46 +139,14 @@ public class NMS_v1_20_R3 implements NMS {
         };
     }
 
-    @SuppressWarnings("removal")
     protected MenuType<?> menuType(InventoryType inventoryType) {
-        return switch (inventoryType) {
-            case PLAYER -> MenuType.GENERIC_9x4;
-            case WORKBENCH -> MenuType.CRAFTING;
-            case FURNACE -> MenuType.FURNACE;
-            case DISPENSER, DROPPER -> MenuType.GENERIC_3x3;
-            case ENCHANTING -> MenuType.ENCHANTMENT;
-            case BREWING -> MenuType.BREWING_STAND;
-            case BEACON -> MenuType.BEACON;
-            case ANVIL -> MenuType.ANVIL;
-            case SMITHING, SMITHING_NEW -> MenuType.SMITHING;
-            case HOPPER -> MenuType.HOPPER;
-            case SHULKER_BOX -> MenuType.SHULKER_BOX;
-            case BLAST_FURNACE -> MenuType.BLAST_FURNACE;
-            case LECTERN -> MenuType.LECTERN;
-            case SMOKER -> MenuType.SMOKER;
-            case LOOM -> MenuType.LOOM;
-            case CARTOGRAPHY -> MenuType.CARTOGRAPHY_TABLE;
-            case GRINDSTONE -> MenuType.GRINDSTONE;
-            case STONECUTTER -> MenuType.STONECUTTER;
-            case MERCHANT -> MenuType.MERCHANT;
-            default -> {
-                if (!inventoryType.isCreatable()) {
-                    throw new IllegalArgumentException("Can't create a %s inventory!".formatted(inventoryType));
-                }
-                yield MenuType.GENERIC_9x3;
+        return Objects.requireNonNullElseGet(menuTypeMap.get(inventoryType), () -> {
+            if (!inventoryType.isCreatable()) {
+                throw new IllegalArgumentException("Can't create a %s inventory!".formatted(inventoryType));
             }
-        };
-    }
 
-    @Override
-    public void openInventory(GlitchInventory<?> inventory) {
-        serverPlayer(inventory.viewer()).connection.send(new ClientboundOpenScreenPacket(
-                inventory.containerId(),
-                inventory.inventoryType() == InventoryType.CHEST
-                        ? menuType(inventory.size() / 9)
-                        : menuType(inventory.inventoryType()),
-                PaperAdventure.asVanilla(inventory.title().component())
-        ));
+            return MenuType.GENERIC_9x3;
+        });
     }
 
     @Override
@@ -191,7 +183,7 @@ public class NMS_v1_20_R3 implements NMS {
     @Override
     public void sendRecipes(MerchantGlitchInventory inventory) {
         MerchantOffers offers = new MerchantOffers();
-        inventory.recipes().forEach(recipe -> offers.add(merchantOffer(recipe)));
+        inventory.recipes().forEach(recipe -> offers.add(CraftMerchantRecipe.fromBukkit(recipe).toMinecraft()));
         serverPlayer(inventory.viewer()).connection.send(new ClientboundMerchantOffersPacket(
                 inventory.containerId(), offers,
                 0, 0,

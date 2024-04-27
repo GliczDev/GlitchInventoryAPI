@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface PaginatedGlitchInventory extends GlitchInventory<PaginatedGlitchInventory> {
-    @NotNull List<@NotNull GuiItem> paginationItems();
+    @NotNull
+    List<@NotNull GuiItem> paginationItems();
 
     PaginatedGlitchInventory paginationItems(@Nullable List<@NotNull GuiItem> paginationItems);
 
-    @NotNull List<@NotNull GuiItem> currentPageItems();
+    @NotNull
+    List<@NotNull GuiItem> currentPageItems();
 
     Margin margin();
 

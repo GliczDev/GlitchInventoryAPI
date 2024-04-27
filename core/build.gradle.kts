@@ -1,57 +1,28 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id("maven-publish")
-    id("com.github.johnrengelman.shadow") version "8.1.0"
+    id("io.github.goooler.shadow")
 }
-
-repositories {
-    maven("https://repo.papermc.io/repository/maven-public/")
-}
-
-val nms = project(":nms")
-
-val reobf: Configuration by configurations.creating
-val mojMap: Configuration by configurations.creating
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT")
-    compileOnly("org.projectlombok:lombok:1.18.26")
-    annotationProcessor("org.projectlombok:lombok:1.18.26")
+    compileOnly("io.papermc.paper:paper-api:1.20.5-R0.1-SNAPSHOT")
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
     implementation(project(":api"))
+    implementation(project(":nms"))
+}
 
-    implementation(nms)
-    nms.subprojects.forEach {
-        reobf(project(":nms:${it.name}", "reobf"))
-        mojMap(it)
+tasks.shadowJar {
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "mojang+yarn"
     }
-}
-
-java {
-    withSourcesJar()
-}
-
-tasks {
-    withType<ShadowJar> {
-        group = "shadow"
-
-        from(sourceSets.main.get().output)
-        from(sourceSets.main.get().runtimeClasspath)
-
-        archiveBaseName = rootProject.name
-    }
-}
-
-task<ShadowJar>("shadowJarReobf") {
-    from(reobf)
 
     archiveClassifier = null
 }
 
-task<ShadowJar>("shadowJarMojMap") {
-    from(mojMap)
-
-    archiveClassifier = "mojmap"
+val sourcesJarTask = task<Jar>("sourcesJar") {
+    from(sourceSets.main.get().allSource)
+    from(project(":api").sourceSets.main.get().allSource)
+    archiveClassifier = "sources"
 }
 
 publishing {
@@ -66,9 +37,8 @@ publishing {
         create<MavenPublication>("maven") {
             artifactId = "${rootProject.name.lowercase()}-${project.name.lowercase()}"
 
-            artifact(tasks.named("sourcesJar"))
-            artifact(tasks.named("shadowJarReobf"))
-            artifact(tasks.named("shadowJarMojMap"))
+            artifact(sourcesJarTask)
+            shadow.component(this)
         }
     }
 }

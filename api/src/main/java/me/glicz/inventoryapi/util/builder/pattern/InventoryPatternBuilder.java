@@ -17,7 +17,8 @@ public interface InventoryPatternBuilder<T extends GlitchInventory<T>> {
         return new InventoryPatternBuilderImpl<>(inventory);
     }
 
-    @Unmodifiable List<String> pattern();
+    @Unmodifiable
+    List<String> pattern();
 
     InventoryPatternBuilder<T> pattern(String... pattern);
 

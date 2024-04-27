@@ -51,9 +51,11 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
 
     int size();
 
-    @NotNull InventoryType inventoryType();
+    @NotNull
+    InventoryType inventoryType();
 
-    @NotNull List<@NotNull GuiItem> items();
+    @NotNull
+    List<@NotNull GuiItem> items();
 
     default GuiItem item(@Range(from = 0, to = Integer.MAX_VALUE) int slot) {
         try {
@@ -101,7 +103,8 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
 
     boolean modifyPlayerInventory();
 
-    @NotNull List<@NotNull GuiItem> extraItems();
+    @NotNull
+    List<@NotNull GuiItem> extraItems();
 
     default @NotNull List<@NotNull GuiItem> allItems() {
         List<GuiItem> items = new ArrayList<>(items());

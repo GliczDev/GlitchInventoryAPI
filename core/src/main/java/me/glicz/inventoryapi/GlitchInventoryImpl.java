@@ -42,12 +42,12 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
 
     protected GlitchInventoryImpl(int rows) {
         this(rows * 9, InventoryType.CHEST);
-        GlitchInventoryAPI.get().getNms().verifyInventoryType(rows);
+        GlitchInventoryAPI.get().nmsBridge().verifyInventoryType(rows);
     }
 
     protected GlitchInventoryImpl(InventoryType inventoryType) {
         this(inventoryType.getDefaultSize(), inventoryType);
-        GlitchInventoryAPI.get().getNms().verifyInventoryType(inventoryType);
+        GlitchInventoryAPI.get().nmsBridge().verifyInventoryType(inventoryType);
     }
 
     protected GlitchInventoryImpl(int size, InventoryType inventoryType) {
@@ -122,7 +122,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
     @Override
     public T updateItems() {
         if (viewer != null) {
-            GlitchInventoryAPI.get().getNms().sendItems(this);
+            GlitchInventoryAPI.get().nmsBridge().sendItems(this);
         }
         return (T) this;
     }
@@ -130,7 +130,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
     @Override
     public T updateItem(int slot) {
         if (viewer != null) {
-            GlitchInventoryAPI.get().getNms().sendItem(this, slot);
+            GlitchInventoryAPI.get().nmsBridge().sendItem(this, slot);
         }
         return (T) this;
     }
@@ -167,7 +167,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
         }
 
         if (containerId == null) {
-            containerId = GlitchInventoryAPI.get().getNms().nextContainerId(player);
+            containerId = GlitchInventoryAPI.get().nmsBridge().nextContainerId(player);
         }
 
         Bukkit.getScheduler().runTask(GlitchInventoryAPI.get().plugin(), () -> {
@@ -187,7 +187,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
         Optional.ofNullable(viewer).ifPresent(player -> {
             if (closeAction != null) closeAction.accept(new GlitchInventoryCloseEvent<>(player, (T) this));
 
-            if (closePacket) GlitchInventoryAPI.get().getNms().closeInventory(this);
+            if (closePacket) GlitchInventoryAPI.get().nmsBridge().closeInventory(this);
             player.updateInventory();
 
             containerId = null;
@@ -246,7 +246,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
 
     protected void openInventory() {
         if (viewer() != null) {
-            GlitchInventoryAPI.get().getNms().openInventory(this);
+            GlitchInventoryAPI.get().nmsBridge().openInventory(this);
         }
     }
 }

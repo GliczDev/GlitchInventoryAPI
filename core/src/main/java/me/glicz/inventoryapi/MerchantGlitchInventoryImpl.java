@@ -71,7 +71,7 @@ public class MerchantGlitchInventoryImpl extends GlitchInventoryImpl<MerchantGli
         }
 
         if (viewer() != null) {
-            GlitchInventoryAPI.get().getNms().sendRecipes(this);
+            GlitchInventoryAPI.get().nmsBridge().sendRecipes(this);
         }
 
         return this;
@@ -102,7 +102,7 @@ public class MerchantGlitchInventoryImpl extends GlitchInventoryImpl<MerchantGli
     protected void openInventory() {
         if (viewer() != null) {
             super.openInventory();
-            GlitchInventoryAPI.get().getNms().sendRecipes(this);
+            GlitchInventoryAPI.get().nmsBridge().sendRecipes(this);
         }
     }
 }
