@@ -60,8 +60,7 @@ abstract sealed class AbstractItemBuilder<S extends AbstractItemBuilder<S, M>, M
     }
 
     public S name(@Nullable Component name) {
-        // TODO use item-name data component when Paper releases API for it
-        itemMeta.displayName(name);
+        itemMeta.itemName(name);
         return (S) this;
     }
 
