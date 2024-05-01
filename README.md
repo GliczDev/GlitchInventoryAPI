@@ -41,7 +41,7 @@ This API supports all versions >= 1.20.6!
 ```xaml
 <dependency>
   <groupId>me.glicz</groupId>
-  <artifactId>glitchinventoryapi-api</artifactId>
+  <artifactId>inventoryapi-api</artifactId>
   <version>VERSION</version>
 </dependency>
 ```
@@ -76,7 +76,7 @@ maven {
 
 ```kts
 dependencies {
-    implementation("me.glicz:glitchinventoryapi-api:VERSION")
+    implementation("me.glicz:inventoryapi-api:VERSION")
 }
 ```
 
