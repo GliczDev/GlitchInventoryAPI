@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.5-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
     implementation(project(":api"))
@@ -35,7 +35,7 @@ publishing {
     }
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "${rootProject.name.lowercase()}-${project.name.lowercase()}"
+            artifactId = "inventoryapi-${project.name.lowercase()}"
 
             artifact(sourcesJarTask)
             shadow.component(this)

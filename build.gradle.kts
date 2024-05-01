@@ -13,13 +13,13 @@ allprojects {
     }
 
     java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
     }
 
     tasks {
         withType<JavaCompile> {
             options.encoding = Charsets.UTF_8.name()
-            options.release.set(21)
+            options.release = 21
             dependsOn(clean)
         }
     }

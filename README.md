@@ -7,7 +7,7 @@
 
 ## Supported versions
 
-This API supports all versions >= 1.17.1!
+This API supports all versions >= 1.20.6!
 
 ## Adding dependency
 
@@ -102,7 +102,7 @@ public void onEnable() {
 GlitchInventory.simple(3) // Create simple inventory with 3 rows (Bukkit InventoryType can be also used)
     .title(Component.text("GlitchInventoryAPI")) // Set title to GlitchInventoryAPI
     .item(10, ItemBuilder.itemBuilder(Material.STONE).asGuiItem(e -> {
-        e.player().sendMessage("Simple GUI created with GlitchInventoryAPI!")
+        e.player().sendMessage("Simple GUI created with GlitchInventoryAPI!");
     })) // Set slot to stone item with click action
     .open(player); // Open inventory to player
 ```
