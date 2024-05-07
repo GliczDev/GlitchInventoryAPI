@@ -135,7 +135,7 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
         return open(player, false);
     }
 
-    T open(@NotNull Player player, boolean reopen);
+    T open(@NotNull Player player, boolean reuseCurrent);
 
     default T close() {
         return close(true);

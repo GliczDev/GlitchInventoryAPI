@@ -28,8 +28,8 @@ public class MerchantGlitchInventoryImpl extends GlitchInventoryImpl<MerchantGli
     }
 
     @Override
-    public MerchantGlitchInventory open(@NotNull Player player, boolean reopen) {
-        super.open(player, reopen);
+    public MerchantGlitchInventory open(@NotNull Player player, boolean reuseCurrent) {
+        super.open(player, reuseCurrent);
 
         if (recipe(0) != null) {
             if (recipeSelectAction != null) {

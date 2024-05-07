@@ -143,7 +143,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
     }
 
     @Override
-    public T open(@NotNull Player player, boolean reopen) {
+    public T open(@NotNull Player player, boolean reuseCurrent) {
         if (viewer == player) {
             openInventory();
             updateItems();
@@ -154,23 +154,25 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
             throw new UnsupportedOperationException();
         }
 
+        boolean hasClosedBukkit = false;
         if (get(player) != null) {
             GlitchInventoryImpl<?> current = get(player);
 
-            if (reopen) {
+            if (reuseCurrent) {
                 containerId = current.containerId;
             }
 
-            current.close(!reopen);
-        } else {
+            current.close(!reuseCurrent);
+        } else if (player.getOpenInventory().getTopInventory() != player.getInventory()) {
             player.closeInventory();
+            hasClosedBukkit = true;
         }
 
         if (containerId == null) {
             containerId = GlitchInventoryAPI.get().nmsBridge().nextContainerId(player);
         }
 
-        Bukkit.getScheduler().runTask(GlitchInventoryAPI.get().plugin(), () -> {
+        Bukkit.getScheduler().runTaskLater(GlitchInventoryAPI.get().plugin(), () -> {
             GLITCH_INVENTORY_MAP.put(player.getUniqueId(), this);
             viewer = player;
 
@@ -178,7 +180,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
             updateItems();
 
             if (openAction != null) openAction.accept(new GlitchInventoryOpenEvent<>(viewer, (T) this));
-        });
+        }, hasClosedBukkit ? 2 : 1);
         return (T) this;
     }
 

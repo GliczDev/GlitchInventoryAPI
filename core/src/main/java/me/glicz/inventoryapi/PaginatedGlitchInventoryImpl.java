@@ -36,8 +36,8 @@ public class PaginatedGlitchInventoryImpl extends GlitchInventoryImpl<PaginatedG
     }
 
     @Override
-    public PaginatedGlitchInventory open(@NotNull Player player, boolean reopen) {
-        super.open(player, reopen);
+    public PaginatedGlitchInventory open(@NotNull Player player, boolean reuseCurrent) {
+        super.open(player, reuseCurrent);
 
         if (pageChangeAction != null) {
             pageChangeAction.accept(new GlitchInventoryPageChangeEvent(player, this, 0));
