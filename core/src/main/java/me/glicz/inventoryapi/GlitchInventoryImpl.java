@@ -220,8 +220,9 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
 
     @Override
     public void handleClick(Integer containerId, int slot, @NotNull ClickType clickType) {
-        if (containerId == null || (!(containerId == 0 && modifyPlayerInventory) && !containerId.equals(this.containerId)))
+        if (containerId == null || (!(containerId == 0 && modifyPlayerInventory) && !containerId.equals(this.containerId))) {
             return;
+        }
 
         viewer.setItemOnCursor(null);
         updateItems();
