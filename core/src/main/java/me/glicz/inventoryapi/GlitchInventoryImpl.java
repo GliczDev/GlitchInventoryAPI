@@ -22,20 +22,20 @@ import org.jetbrains.annotations.Range;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 @Getter
 @Accessors(fluent = true)
 public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements GlitchInventory<T> {
     private static final Map<UUID, GlitchInventoryImpl<?>> GLITCH_INVENTORY_MAP = new HashMap<>();
+    private final Map<UUID, Integer> viewerMap = new HashMap<>();
     private final int size;
     private final InventoryType inventoryType;
     private final GuiItem[] items;
     private boolean modifyPlayerInventory;
     private GuiItem[] extraItems = new GuiItem[0];
     private Title<?> title;
-    private Player viewer;
-    private Integer containerId;
     private Consumer<GlitchInventoryOpenEvent<T>> openAction;
     private Consumer<GlitchInventoryCloseEvent<T>> closeAction;
     private ClickAction<T> clickAction;
@@ -120,46 +120,52 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
     }
 
     @Override
-    public T updateItems() {
-        if (viewer != null) {
-            GlitchInventoryAPI.get().nmsBridge().sendItems(this);
-        }
+    public T updateItems(Player player) {
+        GlitchInventoryAPI.get().nmsBridge().sendItems(player, this);
         return (T) this;
     }
 
     @Override
-    public T updateItem(int slot) {
-        if (viewer != null) {
-            GlitchInventoryAPI.get().nmsBridge().sendItem(this, slot);
-        }
+    public T updateItem(Player player, int slot) {
+        GlitchInventoryAPI.get().nmsBridge().sendItem(player, this, slot);
         return (T) this;
     }
 
     @Override
     public T title(Title<?> title) {
         this.title = title;
-        openInventory();
+        viewers().forEach(this::openInventory);
         return (T) this;
     }
 
     @Override
+    public Set<Player> viewers() {
+        return viewerMap.keySet().stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public Integer containerId(Player player) {
+        return viewerMap.get(player.getUniqueId());
+    }
+
+    @Override
     public T open(@NotNull Player player, boolean reuseCurrent) {
-        if (viewer == player) {
-            openInventory();
-            updateItems();
+        if (viewerMap.containsKey(player.getUniqueId())) {
+            openInventory(player);
+            updateItems(player);
             return (T) this;
         }
 
-        if (viewer != null) {
-            throw new UnsupportedOperationException();
-        }
-
+        Integer containerId = null;
         boolean hasClosedBukkit = false;
         if (get(player) != null) {
             GlitchInventoryImpl<?> current = get(player);
 
             if (reuseCurrent) {
-                containerId = current.containerId;
+                containerId = current.containerId(player);
             }
 
             current.close(!reuseCurrent);
@@ -172,30 +178,32 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
             containerId = GlitchInventoryAPI.get().nmsBridge().nextContainerId(player);
         }
 
+        int finalContainerId = containerId;
         Bukkit.getScheduler().runTaskLater(GlitchInventoryAPI.get().plugin(), () -> {
             GLITCH_INVENTORY_MAP.put(player.getUniqueId(), this);
-            viewer = player;
+            viewerMap.put(player.getUniqueId(), finalContainerId);
 
-            openInventory();
-            updateItems();
+            openInventory(player);
+            updateItems(player);
 
-            if (openAction != null) openAction.accept(new GlitchInventoryOpenEvent<>(viewer, (T) this));
+            if (openAction != null) openAction.accept(new GlitchInventoryOpenEvent<>(player, (T) this));
         }, hasClosedBukkit ? 2 : 1);
         return (T) this;
     }
 
     @Override
-    public T close(boolean closePacket) {
-        Optional.ofNullable(viewer).ifPresent(player -> {
-            if (closeAction != null) closeAction.accept(new GlitchInventoryCloseEvent<>(player, (T) this));
+    public T close(Player player, boolean closePacket) {
+        if (!viewerMap.containsKey(player.getUniqueId())) {
+            return (T) this;
+        }
 
-            if (closePacket) GlitchInventoryAPI.get().nmsBridge().closeInventory(this);
-            player.updateInventory();
+        if (closeAction != null) closeAction.accept(new GlitchInventoryCloseEvent<>(player, (T) this));
 
-            containerId = null;
-            GLITCH_INVENTORY_MAP.remove(player.getUniqueId());
-            viewer = null;
-        });
+        if (closePacket) GlitchInventoryAPI.get().nmsBridge().closeInventory(player, this);
+        player.updateInventory();
+
+        viewerMap.remove(player.getUniqueId());
+        GLITCH_INVENTORY_MAP.remove(player.getUniqueId());
 
         return (T) this;
     }
@@ -219,18 +227,18 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
     }
 
     @Override
-    public void handleClick(Integer containerId, int slot, @NotNull ClickType clickType) {
-        if (containerId == null || (!(containerId == 0 && modifyPlayerInventory) && !containerId.equals(this.containerId))) {
+    public void handleClick(Player player, Integer containerId, int slot, @NotNull ClickType clickType) {
+        if (containerId == null || (!(containerId == 0 && modifyPlayerInventory) && !containerId.equals(containerId(player)))) {
             return;
         }
 
-        viewer.setItemOnCursor(null);
-        updateItems();
+        player.setItemOnCursor(null);
+        updateItems(player);
         if (!modifyPlayerInventory) {
-            viewer.updateInventory();
+            player.updateInventory();
         }
 
-        GlitchInventoryClickEvent<T> event = new GlitchInventoryClickEvent<>(viewer, (T) this, item(slot), slot, clickType);
+        GlitchInventoryClickEvent<T> event = new GlitchInventoryClickEvent<>(player, (T) this, item(slot), slot, clickType);
 
         try {
             Optional.ofNullable(clickAction).ifPresent(clickAction -> clickAction.accept(event));
@@ -249,9 +257,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
         }
     }
 
-    protected void openInventory() {
-        if (viewer() != null) {
-            GlitchInventoryAPI.get().nmsBridge().openInventory(this);
-        }
+    protected void openInventory(Player player) {
+        GlitchInventoryAPI.get().nmsBridge().openInventory(player, this);
     }
 }

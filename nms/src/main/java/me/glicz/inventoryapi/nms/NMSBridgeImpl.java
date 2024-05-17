@@ -82,10 +82,10 @@ public class NMSBridgeImpl implements NMSBridge {
 
     protected void handleS2CPacket(Player player, Object msg) {
         GlitchInventory<?> inventory = GlitchInventory.get(player);
-        if (inventory == null || inventory.containerId() == null) return;
+        if (inventory == null || inventory.containerId(player) == null) return;
 
         if (msg instanceof ClientboundContainerClosePacket) {
-            inventory.close(false);
+            inventory.close(player, false);
         }
     }
 
@@ -95,16 +95,17 @@ public class NMSBridgeImpl implements NMSBridge {
 
         if (msg instanceof ServerboundContainerClickPacket packet) {
             handlePacketAction(() -> inventory.handleClick(
-                    inventory.containerId(),
+                    player,
+                    inventory.containerId(player),
                     packet.getSlotNum(),
                     ClickType.get(packet.getClickType().ordinal(), packet.getButtonNum())
             ));
             return true;
         } else if (msg instanceof ServerboundContainerClosePacket) {
-            handlePacketAction(() -> inventory.close(false));
+            handlePacketAction(() -> inventory.close(player, false));
             return true;
         } else if (inventory instanceof MerchantGlitchInventory merchantInventory && msg instanceof ServerboundSelectTradePacket packet) {
-            handlePacketAction(() -> merchantInventory.handleRecipeSelect(packet.getItem()));
+            handlePacketAction(() -> merchantInventory.handleRecipeSelect(player, packet.getItem()));
             return true;
         } else {
             return msg instanceof ServerboundSwingPacket;
@@ -117,9 +118,9 @@ public class NMSBridgeImpl implements NMSBridge {
     }
 
     @Override
-    public void openInventory(GlitchInventory<?> inventory) {
-        serverPlayer(inventory.viewer()).connection.send(new ClientboundOpenScreenPacket(
-                inventory.containerId(),
+    public void openInventory(Player player, GlitchInventory<?> inventory) {
+        serverPlayer(player).connection.send(new ClientboundOpenScreenPacket(
+                inventory.containerId(player),
                 inventory.inventoryType() == InventoryType.CHEST
                         ? menuType(inventory.size() / 9)
                         : menuType(inventory.inventoryType()),
@@ -150,18 +151,18 @@ public class NMSBridgeImpl implements NMSBridge {
     }
 
     @Override
-    public void closeInventory(GlitchInventory<?> inventory) {
-        serverPlayer(inventory.viewer()).connection.send(new ClientboundContainerClosePacket(
-                inventory.containerId()
+    public void closeInventory(Player player, GlitchInventory<?> inventory) {
+        serverPlayer(player).connection.send(new ClientboundContainerClosePacket(
+                inventory.containerId(player)
         ));
     }
 
     @Override
-    public void sendItems(GlitchInventory<?> inventory) {
-        sendItems0(inventory.containerId(), inventory.viewer(), inventory.allItems().stream().map(GuiItem::itemStack).toList());
+    public void sendItems(Player player, GlitchInventory<?> inventory) {
+        sendItems0(player, inventory.containerId(player), inventory.allItems().stream().map(GuiItem::itemStack).toList());
     }
 
-    protected void sendItems0(int id, Player player, List<org.bukkit.inventory.ItemStack> items) {
+    protected void sendItems0(Player player, int id, List<org.bukkit.inventory.ItemStack> items) {
         ItemStack[] itemStacks = items.stream()
                 .map(ItemStack::fromBukkitCopy)
                 .toArray(ItemStack[]::new);
@@ -173,19 +174,20 @@ public class NMSBridgeImpl implements NMSBridge {
     }
 
     @Override
-    public void sendItem(GlitchInventory<?> inventory, int slot) {
-        serverPlayer(inventory.viewer()).connection.send(new ClientboundContainerSetSlotPacket(
-                inventory.containerId(), 0, slot,
+    public void sendItem(Player player, GlitchInventory<?> inventory, int slot) {
+        serverPlayer(player).connection.send(new ClientboundContainerSetSlotPacket(
+                inventory.containerId(player), 0, slot,
                 ItemStack.fromBukkitCopy(inventory.item(slot).itemStack())
         ));
     }
 
     @Override
-    public void sendRecipes(MerchantGlitchInventory inventory) {
+    public void sendRecipes(Player player, MerchantGlitchInventory inventory) {
         MerchantOffers offers = new MerchantOffers();
         inventory.recipes().forEach(recipe -> offers.add(CraftMerchantRecipe.fromBukkit(recipe).toMinecraft()));
-        serverPlayer(inventory.viewer()).connection.send(new ClientboundMerchantOffersPacket(
-                inventory.containerId(), offers,
+
+        serverPlayer(player).connection.send(new ClientboundMerchantOffersPacket(
+                inventory.containerId(player), offers,
                 0, 0,
                 false, false
         ));

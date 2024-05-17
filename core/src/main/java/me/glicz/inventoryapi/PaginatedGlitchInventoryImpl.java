@@ -113,7 +113,7 @@ public class PaginatedGlitchInventoryImpl extends GlitchInventoryImpl<PaginatedG
         if (page > pageCount - 1 || page < 0 || page == this.page) return this;
 
         if (pageChangeAction != null) {
-            pageChangeAction.accept(new GlitchInventoryPageChangeEvent(viewer(), this, page));
+            viewers().forEach(player -> pageChangeAction.accept(new GlitchInventoryPageChangeEvent(player, this, page)));
         }
 
         this.page = page;

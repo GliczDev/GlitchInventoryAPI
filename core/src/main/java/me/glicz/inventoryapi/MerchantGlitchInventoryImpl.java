@@ -63,16 +63,14 @@ public class MerchantGlitchInventoryImpl extends GlitchInventoryImpl<MerchantGli
 
         if (recipe(0) != null) {
             if (recipeSelectAction != null) {
-                recipeSelectAction.accept(new GlitchInventoryRecipeSelectEvent(viewer(), this, 0));
+                viewers().forEach(player -> recipeSelectAction.accept(new GlitchInventoryRecipeSelectEvent(player, this, 0)));
             }
             this.selectedRecipe = 0;
         } else {
             this.selectedRecipe = -1;
         }
 
-        if (viewer() != null) {
-            GlitchInventoryAPI.get().nmsBridge().sendRecipes(this);
-        }
+        viewers().forEach(player -> GlitchInventoryAPI.get().nmsBridge().sendRecipes(player, this));
 
         return this;
     }
@@ -84,25 +82,23 @@ public class MerchantGlitchInventoryImpl extends GlitchInventoryImpl<MerchantGli
     }
 
     @Override
-    public void handleRecipeSelect(int index) {
+    public void handleRecipeSelect(Player player, int index) {
         Preconditions.checkArgument(index < recipes.size(), "slot >= recipes.size()");
 
-        updateItems();
+        updateItems(player);
         if (!modifyPlayerInventory()) {
-            viewer().updateInventory();
+            player.updateInventory();
         }
 
         if (recipeSelectAction != null) {
-            recipeSelectAction.accept(new GlitchInventoryRecipeSelectEvent(viewer(), this, index));
+            recipeSelectAction.accept(new GlitchInventoryRecipeSelectEvent(player, this, index));
         }
         this.selectedRecipe = index;
     }
 
     @Override
-    protected void openInventory() {
-        if (viewer() != null) {
-            super.openInventory();
-            GlitchInventoryAPI.get().nmsBridge().sendRecipes(this);
-        }
+    protected void openInventory(Player player) {
+        super.openInventory(player);
+        GlitchInventoryAPI.get().nmsBridge().sendRecipes(player, this);
     }
 }

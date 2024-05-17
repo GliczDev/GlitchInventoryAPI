@@ -17,7 +17,7 @@ public class JoinQuitListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        Optional.ofNullable(GlitchInventory.get(e.getPlayer())).ifPresent(GlitchInventory::close);
+        Optional.ofNullable(GlitchInventory.get(e.getPlayer())).ifPresent(glitchInventory -> glitchInventory.close(e.getPlayer()));
         GlitchInventoryAPI.get().nmsBridge().uninjectPlayer(e.getPlayer());
     }
 }

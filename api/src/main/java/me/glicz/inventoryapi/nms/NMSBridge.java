@@ -16,15 +16,15 @@ public interface NMSBridge {
 
     int nextContainerId(Player player);
 
-    void openInventory(GlitchInventory<?> inventory);
+    void openInventory(Player player, GlitchInventory<?> inventory);
 
-    void closeInventory(GlitchInventory<?> inventory);
+    void closeInventory(Player player, GlitchInventory<?> inventory);
 
-    void sendItems(GlitchInventory<?> inventory);
+    void sendItems(Player player, GlitchInventory<?> inventory);
 
-    void sendItem(GlitchInventory<?> inventory, int slot);
+    void sendItem(Player player, GlitchInventory<?> inventory, int slot);
 
-    void sendRecipes(MerchantGlitchInventory inventory);
+    void sendRecipes(Player player, MerchantGlitchInventory inventory);
 
     void verifyInventoryType(int rows);
 

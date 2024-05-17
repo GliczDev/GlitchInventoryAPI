@@ -17,6 +17,7 @@ import org.jetbrains.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public interface GlitchInventory<T extends GlitchInventory<T>> {
@@ -114,9 +115,21 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
 
     T modifyPlayerInventory(boolean modifyPlayerInventory);
 
-    T updateItems();
+    @SuppressWarnings("unchecked")
+    default T updateItems() {
+        viewers().forEach(this::updateItems);
+        return (T) this;
+    }
 
-    T updateItem(int slot);
+    T updateItems(Player player);
+
+    @SuppressWarnings("unchecked")
+    default T updateItem(int slot) {
+        viewers().forEach(player -> updateItem(player, slot));
+        return (T) this;
+    }
+
+    T updateItem(Player player, int slot);
 
     Title<?> title();
 
@@ -126,10 +139,10 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
 
     T title(Title<?> title);
 
-    Player viewer();
+    Set<Player> viewers();
 
     @ApiStatus.Internal
-    Integer containerId();
+    Integer containerId(Player player);
 
     default T open(@NotNull Player player) {
         return open(player, false);
@@ -141,7 +154,17 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
         return close(true);
     }
 
-    T close(boolean closePacket);
+    @SuppressWarnings("unchecked")
+    default T close(boolean closePacket) {
+        viewers().forEach(player -> close(player, closePacket));
+        return (T) this;
+    }
+
+    default T close(Player player) {
+        return close(player, true);
+    }
+
+    T close(Player player, boolean closePacket);
 
     Consumer<GlitchInventoryOpenEvent<T>> openAction();
 
@@ -155,5 +178,5 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
 
     T clickAction(@Nullable ClickAction<T> clickAction);
 
-    void handleClick(Integer containerId, int slot, @NotNull ClickType clickType);
+    void handleClick(Player player, Integer containerId, int slot, @NotNull ClickType clickType);
 }

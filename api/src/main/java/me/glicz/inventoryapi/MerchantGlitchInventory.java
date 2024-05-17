@@ -1,6 +1,7 @@
 package me.glicz.inventoryapi;
 
 import me.glicz.inventoryapi.event.merchant.GlitchInventoryRecipeSelectEvent;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.MerchantRecipe;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,5 +34,5 @@ public interface MerchantGlitchInventory extends GlitchInventory<MerchantGlitchI
 
     MerchantGlitchInventory recipeSelectAction(@Nullable Consumer<GlitchInventoryRecipeSelectEvent> recipeSelectAction);
 
-    void handleRecipeSelect(int index);
+    void handleRecipeSelect(Player player, int index);
 }
