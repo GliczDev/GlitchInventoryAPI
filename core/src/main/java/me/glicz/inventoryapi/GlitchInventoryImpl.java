@@ -235,15 +235,17 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
         try {
             Optional.ofNullable(clickAction).ifPresent(clickAction -> clickAction.accept(event));
         } catch (Exception ex) {
-            GlitchInventoryAPI.get().plugin().getSLF4JLogger()
-                    .error("An exception occurred while executing default click action on slot %s".formatted(slot), ex);
+            GlitchInventoryAPI.get().plugin().getSLF4JLogger().atError()
+                    .setCause(ex)
+                    .log("An exception occurred while executing default click action on slot {}", slot);
         }
 
         try {
             Optional.ofNullable(item(slot)).map(GuiItem::<T>clickAction).ifPresent(clickAction -> clickAction.accept(event));
         } catch (Exception ex) {
-            GlitchInventoryAPI.get().plugin().getSLF4JLogger()
-                    .error("An exception occurred while executing GuiItem click action on slot %s".formatted(slot), ex);
+            GlitchInventoryAPI.get().plugin().getSLF4JLogger().atError()
+                    .setCause(ex)
+                    .log("An exception occurred while executing GuiItem click action on slot {}", slot);
         }
     }
 
