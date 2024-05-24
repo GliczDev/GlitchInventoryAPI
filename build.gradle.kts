@@ -3,7 +3,7 @@ plugins {
     id("io.github.goooler.shadow") version "8.1.7" apply false
 }
 
-allprojects {
+subprojects {
     plugins.apply("java")
 
     repositories {
