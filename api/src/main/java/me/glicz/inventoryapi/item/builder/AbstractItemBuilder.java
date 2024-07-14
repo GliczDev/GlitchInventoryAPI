@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("unchecked")
-abstract sealed class AbstractItemBuilder<S extends AbstractItemBuilder<S, M>, M extends ItemMeta> permits ItemBuilder, LeatherArmorBuilder, SkullBuilder {
+public abstract sealed class AbstractItemBuilder<S extends AbstractItemBuilder<S, M>, M extends ItemMeta> permits ItemBuilder, LeatherArmorBuilder, SkullBuilder {
     protected final ItemStack itemStack;
     protected final M itemMeta;
 

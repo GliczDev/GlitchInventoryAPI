@@ -5,7 +5,7 @@ import me.glicz.inventoryapi.click.ClickType;
 import me.glicz.inventoryapi.event.GlitchInventoryCloseEvent;
 import me.glicz.inventoryapi.event.GlitchInventoryOpenEvent;
 import me.glicz.inventoryapi.factory.InvalidInventoryType;
-import me.glicz.inventoryapi.item.builder.ItemBuilder;
+import me.glicz.inventoryapi.item.builder.AbstractItemBuilder;
 import me.glicz.inventoryapi.item.gui.GuiItem;
 import me.glicz.inventoryapi.title.Title;
 import me.glicz.inventoryapi.util.NotNullConsumer;
@@ -70,7 +70,7 @@ public interface GlitchInventory<T extends GlitchInventory<T>> {
         return item(slot, GuiItem.guiItem(itemStack));
     }
 
-    default T item(@Range(from = 0, to = Integer.MAX_VALUE) int slot, @NotNull ItemBuilder itemBuilder) {
+    default T item(@Range(from = 0, to = Integer.MAX_VALUE) int slot, @NotNull AbstractItemBuilder<?, ?> itemBuilder) {
         return item(slot, itemBuilder.asGuiItem());
     }
 
