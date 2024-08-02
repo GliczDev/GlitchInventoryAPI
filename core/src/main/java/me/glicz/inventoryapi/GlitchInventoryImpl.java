@@ -106,7 +106,7 @@ public class GlitchInventoryImpl<T extends GlitchInventory<T>> implements Glitch
         if (this.modifyPlayerInventory == modifyPlayerInventory) return (T) this;
         this.modifyPlayerInventory = modifyPlayerInventory;
 
-        this.extraItems = new GuiItem[modifyPlayerInventory ? InventoryType.PLAYER.getDefaultSize() : 0];
+        this.extraItems = new GuiItem[modifyPlayerInventory ? 36 : 0];
         for (int i = 0; i < extraItems.length; i++) {
             extraItems[i] = new InventoryGuiItem<>((T) this, i, new ItemStack(Material.AIR));
         }
