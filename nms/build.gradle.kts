@@ -1,10 +1,13 @@
 plugins {
-    id("io.papermc.paperweight.userdev") version "1.7.1"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19" apply false
 }
 
-dependencies {
-    paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
-    compileOnly(project(":api"))
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+subprojects {
+    afterEvaluate {
+        dependencies {
+            "compileOnly"(project(":api"))
+            "compileOnly"("org.projectlombok:lombok:1.18.32")
+            "annotationProcessor"("org.projectlombok:lombok:1.18.32")
+        }
+    }
 }

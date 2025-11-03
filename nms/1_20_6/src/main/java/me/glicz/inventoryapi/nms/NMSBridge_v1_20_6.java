@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class NMSBridgeImpl implements NMSBridge {
+public class NMSBridge_v1_20_6 implements NMSBridge {
     private final Map<InventoryType, MenuType<?>> menuTypeMap = new HashMap<>();
 
-    public NMSBridgeImpl() {
+    public NMSBridge_v1_20_6() {
         registerMenuType(InventoryType.PLAYER, MenuType.GENERIC_9x4);
         registerMenuType(InventoryType.WORKBENCH, MenuType.CRAFTING);
         registerMenuType(InventoryType.FURNACE, MenuType.FURNACE);
@@ -53,11 +53,11 @@ public class NMSBridgeImpl implements NMSBridge {
         registerMenuType(InventoryType.MERCHANT, MenuType.MERCHANT);
     }
 
-    public void registerMenuType(InventoryType inventoryType, MenuType<?> menuType) {
+    protected void registerMenuType(InventoryType inventoryType, MenuType<?> menuType) {
         menuTypeMap.put(inventoryType, menuType);
     }
 
-    private ServerPlayer serverPlayer(Player player) {
+    protected ServerPlayer serverPlayer(Player player) {
         return ((CraftPlayer) player).getHandle();
     }
 
@@ -93,23 +93,27 @@ public class NMSBridgeImpl implements NMSBridge {
         GlitchInventory<?> inventory = GlitchInventory.get(player);
         if (inventory == null) return false;
 
-        if (msg instanceof ServerboundContainerClickPacket packet) {
-            handlePacketAction(() -> inventory.handleClick(
-                    player,
-                    inventory.containerId(player),
-                    packet.getSlotNum(),
-                    ClickType.get(packet.getClickType().ordinal(), packet.getButtonNum())
-            ));
-            return true;
-        } else if (msg instanceof ServerboundContainerClosePacket) {
-            handlePacketAction(() -> inventory.close(player, false));
-            return true;
-        } else if (inventory instanceof MerchantGlitchInventory merchantInventory && msg instanceof ServerboundSelectTradePacket packet) {
-            handlePacketAction(() -> merchantInventory.handleRecipeSelect(player, packet.getItem()));
-            return true;
-        } else {
-            return msg instanceof ServerboundSwingPacket;
-        }
+        return switch (msg) {
+            case ServerboundContainerClickPacket packet -> {
+                handlePacketAction(() -> inventory.handleClick(
+                        player,
+                        inventory.containerId(player),
+                        packet.getSlotNum(),
+                        ClickType.get(packet.getClickType().ordinal(), packet.getButtonNum())
+                ));
+                yield true;
+            }
+            case ServerboundContainerClosePacket $ -> {
+                handlePacketAction(() -> inventory.close(player, false));
+                yield true;
+            }
+            case ServerboundSelectTradePacket packet when inventory instanceof MerchantGlitchInventory merchantInventory -> {
+                handlePacketAction(() -> merchantInventory.handleRecipeSelect(player, packet.getItem()));
+                yield true;
+            }
+            case ServerboundSwingPacket $ -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -166,8 +170,10 @@ public class NMSBridgeImpl implements NMSBridge {
         ItemStack[] itemStacks = items.stream()
                 .map(ItemStack::fromBukkitCopy)
                 .toArray(ItemStack[]::new);
+
         serverPlayer(player).connection.send(new ClientboundContainerSetContentPacket(
-                id, 0,
+                id,
+                0,
                 NonNullList.of(ItemStack.EMPTY, itemStacks),
                 ItemStack.EMPTY
         ));

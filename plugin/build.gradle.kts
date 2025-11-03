@@ -1,6 +1,6 @@
 plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
-    id("io.github.goooler.shadow")
+    id("com.gradleup.shadow")
 }
 
 dependencies {

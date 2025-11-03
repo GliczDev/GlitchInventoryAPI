@@ -18,6 +18,7 @@ publishing {
             credentials(PasswordCredentials::class)
         }
     }
+
     publications {
         create<MavenPublication>("maven") {
             artifactId = "inventoryapi-${project.name.lowercase()}"

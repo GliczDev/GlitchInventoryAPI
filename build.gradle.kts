@@ -1,9 +1,8 @@
 plugins {
-    id("java")
-    id("io.github.goooler.shadow") version "8.1.7" apply false
+    id("com.gradleup.shadow") version "8.3.6" apply false
 }
 
-subprojects {
+configure(subprojects.filter { it.name != "nms" }) {
     plugins.apply("java")
 
     repositories {
@@ -12,7 +11,7 @@ subprojects {
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
     }
 
-    java {
+    extensions.configure<JavaPluginExtension> {
         toolchain.languageVersion = JavaLanguageVersion.of(21)
     }
 
@@ -20,7 +19,7 @@ subprojects {
         withType<JavaCompile> {
             options.encoding = Charsets.UTF_8.name()
             options.release = 21
-            dependsOn(clean)
+            dependsOn("clean")
         }
     }
 }

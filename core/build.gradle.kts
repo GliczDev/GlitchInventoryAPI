@@ -1,6 +1,6 @@
 plugins {
     id("maven-publish")
-    id("io.github.goooler.shadow")
+    id("com.gradleup.shadow")
 }
 
 dependencies {
@@ -8,7 +8,9 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
     implementation(project(":api"))
-    implementation(project(":nms"))
+    project.project(":nms").subprojects.forEach {
+        implementation(it)
+    }
 }
 
 tasks.shadowJar {
@@ -19,7 +21,7 @@ tasks.shadowJar {
     archiveClassifier = null
 }
 
-val sourcesJarTask = task<Jar>("sourcesJar") {
+val sourcesJarTask = tasks.register<Jar>("sourcesJar") {
     from(sourceSets.main.get().allSource)
     from(project(":api").sourceSets.main.get().allSource)
     archiveClassifier = "sources"
@@ -33,12 +35,14 @@ publishing {
             credentials(PasswordCredentials::class)
         }
     }
+
     publications {
         create<MavenPublication>("maven") {
             artifactId = "inventoryapi-${project.name.lowercase()}"
 
             artifact(sourcesJarTask)
-            shadow.component(this)
+
+            from(components["shadow"])
         }
     }
 }
