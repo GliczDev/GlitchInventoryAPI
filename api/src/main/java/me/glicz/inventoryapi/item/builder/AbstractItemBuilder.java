@@ -60,7 +60,7 @@ public abstract sealed class AbstractItemBuilder<S extends AbstractItemBuilder<S
     }
 
     public S name(@Nullable Component name) {
-        itemMeta.itemName(name);
+        itemMeta.displayName(name);
         return (S) this;
     }
 
