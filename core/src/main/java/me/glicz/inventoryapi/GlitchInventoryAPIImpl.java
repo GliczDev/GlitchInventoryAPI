@@ -9,6 +9,7 @@ import me.glicz.inventoryapi.listener.JoinQuitListener;
 import me.glicz.inventoryapi.nms.NMSBridge;
 import me.glicz.inventoryapi.nms.NMSBridge_v1_20_6;
 import me.glicz.inventoryapi.nms.NMSBridge_v1_21_5;
+import me.glicz.inventoryapi.nms.NMSBridge_v26_2;
 import me.glicz.inventoryapi.util.MinecraftVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,7 +30,9 @@ public class GlitchInventoryAPIImpl extends GlitchInventoryAPI {
     private static NMSBridge resolveNMSBridge() {
         MinecraftVersion version = MinecraftVersion.currentVersion();
 
-        if (version.isAtLeast(1, 21, 5)) {
+        if (version.isAtLeast(26, 1, 0)) {
+            return new NMSBridge_v26_2();
+        } else if (version.isAtLeast(1, 21, 5)) {
             return new NMSBridge_v1_21_5();
         } else if (version.isAtLeast(1, 20, 6)) {
             return new NMSBridge_v1_20_6();

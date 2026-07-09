@@ -5,8 +5,8 @@ plugins {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.46")
+    annotationProcessor("org.projectlombok:lombok:1.18.46")
     implementation(project(":api"))
     project.project(":nms").subprojects.forEach {
         implementation(it)

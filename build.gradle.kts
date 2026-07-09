@@ -12,13 +12,13 @@ configure(subprojects.filter { it.name != "nms" }) {
     }
 
     extensions.configure<JavaPluginExtension> {
-        toolchain.languageVersion = JavaLanguageVersion.of(21)
+        toolchain.languageVersion = JavaLanguageVersion.of(25)
     }
 
     tasks {
         withType<JavaCompile> {
             options.encoding = Charsets.UTF_8.name()
-            options.release = 21
+            options.release = 25
             dependsOn("clean")
         }
     }

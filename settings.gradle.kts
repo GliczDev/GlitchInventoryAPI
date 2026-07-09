@@ -9,7 +9,8 @@ include(
 
 listOf(
     "1_20_6",
-    "1_21_5"
+    "1_21_5",
+    "26_1"
 ).forEach {
     val name = ":nms:nms-v$it"
 
